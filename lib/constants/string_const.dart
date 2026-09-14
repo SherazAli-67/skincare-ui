@@ -1,5 +1,6 @@
 class StringConst {
   static const appTitle = 'Glowra';
+  static const appFontFamily = 'MonaSans';
   static const brandName = 'Glowra';
   static const welcomeHeadlineLine1 = 'Unlock Your';
   static const welcomeHeadlineLine2 = 'Natural Beauty';

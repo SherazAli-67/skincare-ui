@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
       title: StringConst.appTitle,
       theme: ThemeData(
         brightness: .light,
-        fontFamily: 'MonaSans',
+        fontFamily: StringConst.appFontFamily,
         scaffoldBackgroundColor: AppColors.background,
         colorScheme: ColorScheme.light(
           primary: AppColors.primary,
@@ -27,8 +27,8 @@ class MyApp extends StatelessWidget {
           onSurface: AppColors.textPrimary,
         ),
         textTheme: TextTheme(
-          displayLarge: TextStyle(fontFamily: 'MonaSans', fontWeight: .w600, color: AppColors.textHeadline),
-          bodyMedium: TextStyle(fontFamily: 'MonaSans', fontWeight: .w400, color: AppColors.textSecondary),
+          displayLarge: TextStyle(fontFamily: StringConst.appFontFamily, fontWeight: .w600, color: AppColors.textHeadline),
+          bodyMedium: TextStyle(fontFamily: StringConst.appFontFamily, fontWeight: .w400, color: AppColors.textSecondary),
         ),
       ),
       routerConfig: router,
