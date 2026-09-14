@@ -134,90 +134,121 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildPromoSection(BuildContext context) {
-    final bannerIndex = context.watch<HomeProvider>().bannerIndex;
-    return Column(
-      spacing: 10,
-      children: [
-        SizedBox(
-          height: 205,
-          child: PageView.builder(
-            itemCount: AppData.promoBanners.length,
-            onPageChanged: (index) => context.read<HomeProvider>().setBannerIndex(index),
-            itemBuilder: (_, index) => _buildPromoBanner(context, AppData.promoBanners[index]),
-          ),
-        ),
-        Row(
-          spacing: 8,
-          mainAxisAlignment: .center,
-          children: List.generate(
-            AppData.promoBanners.length,
-            (index) => _buildPaginationDot(bannerIndex, index),
-          ),
-        ),
-      ],
+    final provider = context.read<HomeProvider>();
+    return AnimatedBuilder(
+      animation: provider.pageController,
+      builder: (context, _) {
+        final page = provider.bannerPage;
+        return Column(
+          spacing: 10,
+          children: [
+            SizedBox(
+              height: 205,
+              child: PageView.builder(
+                controller: provider.pageController,
+                itemCount: AppData.promoBanners.length,
+                onPageChanged: (index) => provider.setBannerIndex(index),
+                itemBuilder: (_, index) => _buildPromoBanner(
+                  context,
+                  AppData.promoBanners[index],
+                  pageOffset: page,
+                  index: index,
+                ),
+              ),
+            ),
+            Row(
+              spacing: 8,
+              mainAxisAlignment: .center,
+              children: List.generate(
+                AppData.promoBanners.length,
+                (index) => _buildPaginationDot(page.round(), index),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
-  Widget _buildPromoBanner(BuildContext context, PromoBannerModel banner) {
+  Widget _buildPromoBanner(
+    BuildContext context,
+    PromoBannerModel banner, {
+    required double pageOffset,
+    required int index,
+  }) {
+    final parallax = (pageOffset - index).clamp(-1.0, 1.0);
     return Container(
       margin: .symmetric(horizontal: 10),
       decoration: BoxDecoration(
         borderRadius: .circular(16),
       ),
-      child: Stack(
-        fit: .expand,
-        children: [
-          ClipRRect(
-            borderRadius: .circular(16),
-            child: Image.asset(banner.imagePath, fit: .cover,),
-          ),
-          Padding(
-            padding: .all(20),
-            child: Column(
-              spacing: 10,
-              crossAxisAlignment: .start,
-              mainAxisAlignment: .center,
-              children: [
-                Column(
-                  spacing: 8,
+      child: ClipRRect(
+        borderRadius: .circular(16),
+        child: Stack(
+          fit: .expand,
+          children: [
+            Transform.translate(
+              offset: Offset(parallax * -28, 0),
+              child: Transform.scale(
+                scale: 1.12,
+                child: Image.asset(
+                  banner.imagePath,
+                  fit: .cover,
+                  alignment: Alignment(-parallax * 0.6, 0),
+                ),
+              ),
+            ),
+            Padding(
+              padding: .all(20),
+              child: Transform.translate(
+                offset: Offset(parallax * 12, 0),
+                child: Column(
+                  spacing: 10,
                   crossAxisAlignment: .start,
+                  mainAxisAlignment: .center,
                   children: [
-                    Container(
-                      padding: .symmetric(horizontal: 10),
-                      decoration: BoxDecoration(
-                        color: AppColors.promoTag,
-                        borderRadius: .circular(70),
-                        border: .all(color: AppColors.promoTagBorder, width: 0.5),
-                      ),
-                      child: Text(banner.tag, style: AppTextStyles.promoTag,),
-                    ),
                     Column(
                       spacing: 8,
                       crossAxisAlignment: .start,
                       children: [
-                        Text(banner.titleLine1, style: AppTextStyles.headlineMedium,),
-                        Text(
-                          banner.titleLine2,
-                          style: AppTextStyles.headlineMedium.copyWith(color: AppColors.textHeadlineAccent),
+                        Container(
+                          padding: .symmetric(horizontal: 10),
+                          decoration: BoxDecoration(
+                            color: AppColors.promoTag,
+                            borderRadius: .circular(70),
+                            border: .all(color: AppColors.promoTagBorder, width: 0.5),
+                          ),
+                          child: Text(banner.tag, style: AppTextStyles.promoTag,),
                         ),
-                        Text(banner.subtitle, style: AppTextStyles.bodySmall,),
+                        Column(
+                          spacing: 8,
+                          crossAxisAlignment: .start,
+                          children: [
+                            Text(banner.titleLine1, style: AppTextStyles.headlineMedium,),
+                            Text(
+                              banner.titleLine2,
+                              style: AppTextStyles.headlineMedium.copyWith(color: AppColors.textHeadlineAccent),
+                            ),
+                            Text(banner.subtitle, style: AppTextStyles.bodySmall,),
+                          ],
+                        ),
                       ],
+                    ),
+                    PrimaryButton(
+                      label: StringConst.shopNow,
+                      width: 112,
+                      height: 34,
+                      borderRadius: 12,
+                      arrowSize: 12,
+                      textStyle: AppTextStyles.buttonSmall,
+                      onTap: () => context.push(NamedRoutes.skinAnalysis.routeName),
                     ),
                   ],
                 ),
-                PrimaryButton(
-                  label: StringConst.shopNow,
-                  width: 112,
-                  height: 34,
-                  borderRadius: 12,
-                  arrowSize: 12,
-                  textStyle: AppTextStyles.buttonSmall,
-                  onTap: () => context.push(NamedRoutes.skinAnalysis.routeName),
-                ),
-              ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
