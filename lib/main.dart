@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:skincare/constants/string_const.dart';
+import 'package:skincare/core/app_colors.dart';
 import 'package:skincare/router/router.dart';
 
 void main() {
@@ -9,13 +10,26 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: StringConst.appTitle,
       theme: ThemeData(
-        brightness: .light
+        brightness: .light,
+        fontFamily: 'MonaSans',
+        scaffoldBackgroundColor: AppColors.background,
+        colorScheme: ColorScheme.light(
+          primary: AppColors.primary,
+          secondary: AppColors.primaryLight,
+          surface: AppColors.background,
+          onPrimary: AppColors.white,
+          onSecondary: AppColors.white,
+          onSurface: AppColors.textPrimary,
+        ),
+        textTheme: TextTheme(
+          displayLarge: TextStyle(fontFamily: 'MonaSans', fontWeight: .w600, color: AppColors.textHeadline),
+          bodyMedium: TextStyle(fontFamily: 'MonaSans', fontWeight: .w400, color: AppColors.textSecondary),
+        ),
       ),
       routerConfig: router,
       builder: (ctx, child) => child!,

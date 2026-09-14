@@ -1,3 +1,34 @@
 class StringConst {
-  static const appTitle = 'Skin Care';
+  static const appTitle = 'Glowra';
+  static const brandName = 'Glowra';
+  static const welcomeHeadlineLine1 = 'Unlock Your';
+  static const welcomeHeadlineLine2 = 'Natural Beauty';
+  static const welcomeSubtitle = 'Rediscover the Radiance Within and Embrace Your Best, Most Beautiful Self';
+  static const naturalIngredients = 'Natural Ingredients';
+  static const deepHydration = 'Deep Hydration';
+  static const healthyGlow = 'Healthy Glow';
+  static const discoverProducts = 'Discover Products';
+  static const searchProductHint = 'Search product...';
+  static const helloPrefix = 'Hello';
+  static const userName = 'Dianne';
+  static const homeGreetingSubtitle = 'Lets take care of your skin';
+  static const newArrival = 'New Arrival';
+  static const promoTitleLine1 = 'Glow Naturally,';
+  static const promoTitleLine2 = 'Every Day';
+  static const promoSubtitle = 'Skincare with natural ingredients';
+  static const shopNow = 'Shop Now';
+  static const flashSale = 'Flash Sale';
+  static const viewMore = 'View more';
+  static const tabHome = 'Home';
+  static const tabCategories = 'Categories';
+  static const tabCart = 'Cart';
+  static const tabProfile = 'Profile';
+  static const categoryAll = 'All';
+  static const categorySkincare = 'Skincare';
+  static const categorySunscreen = 'Sunscreen';
+  static const categoryBodyLotion = 'Body lotion';
+  static const categoryMakeup = 'Makeup';
+  static const skinHealth = 'Skin Health';
+  static const suggestProduct = 'Suggest Product';
+  static const comingSoon = 'Coming soon';
 }

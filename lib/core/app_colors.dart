@@ -1,3 +1,42 @@
-class AppColors {
+import 'package:flutter/material.dart';
 
+class AppColors {
+  static const white = Color(0xFFFFFFFF);
+  static const black = Color(0xFF030203);
+  static const background = Color(0xFFFDF7F0);
+  static const backgroundStart = Color(0xFFFFF8F2);
+  static const backgroundMid = Color(0xFFF3DFCC);
+  static const backgroundEnd = Color(0xFFF0D2B2);
+  static const primary = Color(0xFFA66F40);
+  static const primaryDark = Color(0xFF9B6336);
+  static const primaryLight = Color(0xFFC28751);
+  static const primaryVia = Color(0xFFA97141);
+  static const textPrimary = Color(0xFF533820);
+  static const textHeadline = Color(0xFF42290E);
+  static const textHeadlineAccent = Color(0xFF724822);
+  static const textSecondary = Color(0xFF604936);
+  static const textDark = Color(0xFF3C1900);
+  static const chipBackground = Color(0xFFF9EDE1);
+  static const circleButton = Color(0xFFEDDBCC);
+  static const searchHint = Color(0xFFB7B7B8);
+  static const ratingMuted = Color(0xFFA48366);
+  static const navActive = Color(0xFF7F3E0D);
+  static const promoTag = Color(0xFFDFC1A4);
+  static const promoTagBorder = Color(0xFF633B16);
+  static const promoSubtitle = Color(0xFF7B5735);
+  static const skinHealthPercent = Color(0xFFFFE05C);
+  static const progressTrack = Color(0xFFC28658);
+  static const progressFill = Color(0xFFF3D0A0);
+  static const borderLight = Color(0xFFF0DDCC);
+  static const featureCard = Color(0xFFF8EBDF);
+  static const bottomNav = Color(0xFFFDF4EA);
+  static const productCardEnd = Color(0xFFFAEFE4);
+  static const featureBlur = Color(0xFFEECFAF);
+  static const paginationInactive = Color(0xFFDDA26F);
+  static const skinHealthBorder = Color(0xFFD5A576);
+  static const suggestBorder = Color(0xFFF9EDE1);
+  static const logoStart = Color(0xFF916945);
+  static const logoEnd = Color(0xFF291200);
+  static const shadowBrown = Color(0xFF8E5020);
+  static const shadowPromo = Color(0xFFC18F5F);
 }
