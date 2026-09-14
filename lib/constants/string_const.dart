@@ -5,9 +5,9 @@ class StringConst {
   static const welcomeHeadlineLine1 = 'Unlock Your';
   static const welcomeHeadlineLine2 = 'Natural Beauty';
   static const welcomeSubtitle = 'Rediscover the Radiance Within and Embrace Your Best, Most Beautiful Self';
-  static const naturalIngredients = 'Natural Ingredients';
-  static const deepHydration = 'Deep Hydration';
-  static const healthyGlow = 'Healthy Glow';
+  static const naturalIngredients = 'Natural \nIngredients';
+  static const deepHydration = 'Deep \nHydration';
+  static const healthyGlow = 'Healthy \nGlow';
   static const discoverProducts = 'Discover Products';
   static const searchProductHint = 'Search product...';
   static const helloPrefix = 'Hello';
