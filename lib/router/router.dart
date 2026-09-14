@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:skincare/constants/string_const.dart';
 import 'package:skincare/core/app_colors.dart';
 import 'package:skincare/core/app_textstyles.dart';
+import 'package:skincare/presentation/providers/home_provider.dart';
 import 'package:skincare/presentation/screens/cart_screen.dart';
 import 'package:skincare/presentation/screens/categories_screen.dart';
 import 'package:skincare/presentation/screens/home_screen.dart';
@@ -19,7 +21,13 @@ GoRouter router = GoRouter(
       branches: [
         StatefulShellBranch(
           routes: [
-            GoRoute(path: NamedRoutes.home.routeName, builder: (_, state) => const HomeScreen()),
+            GoRoute(
+              path: NamedRoutes.home.routeName,
+              builder: (_, state) => ChangeNotifierProvider(
+                create: (_) => HomeProvider(),
+                child: const HomeScreen(),
+              ),
+            ),
           ],
         ),
         StatefulShellBranch(

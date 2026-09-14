@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:skincare/constants/string_const.dart';
 import 'package:skincare/core/app_colors.dart';
 import 'package:skincare/core/app_data.dart';
@@ -9,29 +10,15 @@ import 'package:skincare/core/app_textstyles.dart';
 import 'package:skincare/core/models/category_model.dart';
 import 'package:skincare/core/models/product_model.dart';
 import 'package:skincare/core/models/promo_banner_model.dart';
+import 'package:skincare/presentation/providers/home_provider.dart';
 import 'package:skincare/presentation/widgets/circle_icon_button.dart';
 import 'package:skincare/presentation/widgets/glowra_logo.dart';
 import 'package:skincare/presentation/widgets/primary_button.dart';
 import 'package:skincare/presentation/widgets/rating_label.dart';
 import 'package:skincare/router/router.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  int _selectedCategoryIndex = 0;
-  int _bannerIndex = 0;
-  late List<ProductModel> _products;
-
-  @override
-  void initState() {
-    super.initState();
-    _products = List.of(AppData.flashSaleProducts);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,10 +34,10 @@ class _HomeScreenState extends State<HomeScreen> {
               _buildHeader(),
               _buildGreeting(),
               _buildSearchField(),
-              _buildCategories(),
-              _buildPromoSection(),
+              _buildCategories(context),
+              _buildPromoSection(context),
               _buildFlashSaleHeader(),
-              _buildFlashSaleList(),
+              _buildFlashSaleList(context),
             ],
           ),
         ),
@@ -119,22 +106,22 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildCategories() {
+  Widget _buildCategories(BuildContext context) {
     return SizedBox(
       height: 32,
       child: ListView.separated(
         scrollDirection: .horizontal,
         itemCount: AppData.categories.length,
         separatorBuilder: (_, _) => const SizedBox(width: 10),
-        itemBuilder: (_, index) => _buildCategoryChip(AppData.categories[index], index),
+        itemBuilder: (_, index) => _buildCategoryChip(context, AppData.categories[index], index),
       ),
     );
   }
 
-  Widget _buildCategoryChip(CategoryModel category, int index) {
-    final selected = _selectedCategoryIndex == index;
+  Widget _buildCategoryChip(BuildContext context, CategoryModel category, int index) {
+    final selected = context.watch<HomeProvider>().selectedCategoryIndex == index;
     return GestureDetector(
-      onTap: () => setState(() => _selectedCategoryIndex = index),
+      onTap: () => context.read<HomeProvider>().selectCategory(index),
       child: Container(
         padding: .symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
@@ -146,7 +133,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildPromoSection() {
+  Widget _buildPromoSection(BuildContext context) {
+    final bannerIndex = context.watch<HomeProvider>().bannerIndex;
     return Column(
       spacing: 10,
       children: [
@@ -154,20 +142,23 @@ class _HomeScreenState extends State<HomeScreen> {
           height: 205,
           child: PageView.builder(
             itemCount: AppData.promoBanners.length,
-            onPageChanged: (index) => setState(() => _bannerIndex = index),
-            itemBuilder: (_, index) => _buildPromoBanner(AppData.promoBanners[index]),
+            onPageChanged: (index) => context.read<HomeProvider>().setBannerIndex(index),
+            itemBuilder: (_, index) => _buildPromoBanner(context, AppData.promoBanners[index]),
           ),
         ),
         Row(
           spacing: 8,
           mainAxisAlignment: .center,
-          children: List.generate(AppData.promoBanners.length, _buildPaginationDot),
+          children: List.generate(
+            AppData.promoBanners.length,
+            (index) => _buildPaginationDot(bannerIndex, index),
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildPromoBanner(PromoBannerModel banner) {
+  Widget _buildPromoBanner(BuildContext context, PromoBannerModel banner) {
     return Container(
       margin: .symmetric(horizontal: 10),
       decoration: BoxDecoration(
@@ -178,7 +169,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           ClipRRect(
             borderRadius: .circular(16),
-            child:  Image.asset(banner.imagePath, fit: .cover,),
+            child: Image.asset(banner.imagePath, fit: .cover,),
           ),
           Padding(
             padding: .all(20),
@@ -231,8 +222,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildPaginationDot(int index) {
-    final active = _bannerIndex == index;
+  Widget _buildPaginationDot(int bannerIndex, int index) {
+    final active = bannerIndex == index;
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       width: active ? 28 : 8,
@@ -254,19 +245,20 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildFlashSaleList() {
+  Widget _buildFlashSaleList(BuildContext context) {
+    final products = context.watch<HomeProvider>().products;
     return SizedBox(
       height: 210,
       child: ListView.separated(
         scrollDirection: .horizontal,
-        itemCount: _products.length,
+        itemCount: products.length,
         separatorBuilder: (_, _) => const SizedBox(width: 12),
-        itemBuilder: (_, index) => _buildProductCard(_products[index], index),
+        itemBuilder: (_, index) => _buildProductCard(context, products[index], index),
       ),
     );
   }
 
-  Widget _buildProductCard(ProductModel product, int index) {
+  Widget _buildProductCard(BuildContext context, ProductModel product, int index) {
     return Container(
       width: 130,
       height: 210,
@@ -298,24 +290,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 top: 8,
                 right: 8,
                 child: GestureDetector(
-                  onTap: () => setState(() {
-                    _products[index] = product.copyWith(isFavorite: !product.isFavorite);
-                  }),
+                  onTap: () => context.read<HomeProvider>().toggleFavorite(index),
                   child: Container(
-                    width: 24,
-                    height: 24,
-                    padding: .all(4),
+                    padding: .all(8),
                     decoration: BoxDecoration(
                       color: AppColors.white.withValues(alpha: 0.9),
                       shape: .circle,
                     ),
-                    child: SvgPicture.asset(
-                      AppIcons.icFavorite,
-                      colorFilter: .mode(
-                        product.isFavorite ? AppColors.primary : AppColors.textSecondary,
-                        .srcIn,
-                      ),
-                    ),
+                    child:product.isFavorite ? Icon(Icons.favorite, color: AppColors.primary,) : SvgPicture.asset(AppIcons.icFavorite, height: 20,),
                   ),
                 ),
               ),
