@@ -29,23 +29,29 @@ class SkinAnalysisScreen extends StatelessWidget {
             child: Column(
               children: [
                 _buildFaceSection(context, size),
-                ImageFiltered(
-                  imageFilter: ImageFilter.blur(
-                    sigmaX: 14,
-                    sigmaY: 14,
-                  ),
-                  child: Container(
-                    height: 176,
-                    color: AppColors.background,),
-                )
+
               ],
             ),
           ),
           Positioned(
             left: 0,
             right: 0,
-            bottom: 0,
-            child: _buildSuggestPanel(),
+            bottom: 175,
+            child:  ImageFiltered(
+              imageFilter: ImageFilter.blur(
+                sigmaX: 14,
+                sigmaY: 14,
+              ),
+              child: Container(
+                height: 176,
+                color: AppColors.background,),
+            ),
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 20,
+            child: _buildSuggestPanel()
           ),
         ],
       ),
