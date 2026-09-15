@@ -17,8 +17,42 @@ import 'package:skincare/presentation/widgets/primary_button.dart';
 import 'package:skincare/presentation/widgets/rating_label.dart';
 import 'package:skincare/router/router.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+  late final AnimationController _entranceController;
+  late final Animation<double> _headerAnimation;
+  late final Animation<double> _greetingAnimation;
+  late final Animation<double> _searchAnimation;
+  late final Animation<double> _categoriesAnimation;
+  late final Animation<double> _promoAnimation;
+  late final Animation<double> _flashHeaderAnimation;
+  late final Animation<double> _flashListAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _entranceController = AnimationController(vsync: this, duration: const Duration(milliseconds: 1500));
+    _headerAnimation = CurvedAnimation(parent: _entranceController, curve: const Interval(0.00, 0.22, curve: Curves.easeOutCubic));
+    _greetingAnimation = CurvedAnimation(parent: _entranceController, curve: const Interval(0.08, 0.30, curve: Curves.easeOutCubic));
+    _searchAnimation = CurvedAnimation(parent: _entranceController, curve: const Interval(0.16, 0.38, curve: Curves.easeOutCubic));
+    _categoriesAnimation = CurvedAnimation(parent: _entranceController, curve: const Interval(0.24, 0.46, curve: Curves.easeOutCubic));
+    _promoAnimation = CurvedAnimation(parent: _entranceController, curve: const Interval(0.32, 0.58, curve: Curves.easeOutCubic));
+    _flashHeaderAnimation = CurvedAnimation(parent: _entranceController, curve: const Interval(0.48, 0.70, curve: Curves.easeOutCubic));
+    _flashListAnimation = CurvedAnimation(parent: _entranceController, curve: const Interval(0.55, 0.90, curve: Curves.easeOutCubic));
+    _entranceController.forward();
+  }
+
+  @override
+  void dispose() {
+    _entranceController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,16 +65,30 @@ class HomeScreen extends StatelessWidget {
             spacing: 14,
             crossAxisAlignment: .start,
             children: [
-              _buildHeader(),
-              _buildGreeting(),
-              _buildSearchField(),
-              _buildCategories(context),
-              _buildPromoSection(context),
-              _buildFlashSaleHeader(),
-              _buildFlashSaleList(context)
+              _buildFadeSlideIn(animation: _headerAnimation, child: _buildHeader()),
+              _buildFadeSlideIn(animation: _greetingAnimation, child: _buildGreeting()),
+              _buildFadeSlideIn(animation: _searchAnimation, child: _buildSearchField()),
+              _buildFadeSlideIn(animation: _categoriesAnimation, child: _buildCategories(context)),
+              _buildFadeSlideIn(animation: _promoAnimation, child: _buildPromoSection(context)),
+              _buildFadeSlideIn(animation: _flashHeaderAnimation, child: _buildFlashSaleHeader()),
+              _buildFadeSlideIn(animation: _flashListAnimation, beginOffset: const Offset(0.04, 0), child: _buildFlashSaleList(context)),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildFadeSlideIn({
+    required Animation<double> animation,
+    required Widget child,
+    Offset beginOffset = const Offset(0, 0.06),
+  }) {
+    return FadeTransition(
+      opacity: animation,
+      child: SlideTransition(
+        position: Tween(begin: beginOffset, end: Offset.zero).animate(animation),
+        child: child,
       ),
     );
   }
@@ -49,10 +97,8 @@ class HomeScreen extends StatelessWidget {
     return Row(
       mainAxisAlignment: .spaceBetween,
       children: [
-        //logoWithText
         LogoWithText(),
-        //circleIconButton
-        CircleIconButton(iconPath: AppIcons.icNotifications)
+        CircleIconButton(iconPath: AppIcons.icNotifications),
       ],
     );
   }
@@ -62,9 +108,7 @@ class HomeScreen extends StatelessWidget {
     return Row(
       spacing: 14,
       children: [
-        ClipOval(
-          child: Image.asset(user.avatarPath, width: 48, height: 48, fit: .cover,),
-        ),
+        ClipOval(child: Image.asset(user.avatarPath, width: 48, height: 48, fit: .cover)),
         Column(
           spacing: 4,
           crossAxisAlignment: .start,
@@ -72,14 +116,11 @@ class HomeScreen extends StatelessWidget {
             Row(
               spacing: 12,
               children: [
-                //, titleLarge
-                Text('${StringConst.helloPrefix} ${user.name}!', style: AppTextStyles.titleLarge,),
-                SvgPicture.asset(AppIcons.icSparkle, width: 13, height: 16)
-                //icSparkle, width: 13, height: 16
+                Text('${StringConst.helloPrefix} ${user.name}!', style: AppTextStyles.titleLarge),
+                SvgPicture.asset(AppIcons.icSparkle, width: 13, height: 16),
               ],
             ),
-            //user.subtitle, bodyMedium
-            Text(user.subtitle, style: AppTextStyles.bodyMedium,)
+            Text(user.subtitle, style: AppTextStyles.bodyMedium),
           ],
         ),
       ],
@@ -104,10 +145,8 @@ class HomeScreen extends StatelessWidget {
       child: Row(
         mainAxisAlignment: .spaceBetween,
         children: [
-          //searchProductHint, searchHint
-          Text(StringConst.searchProductHint, style: AppTextStyles.searchHint,),
-          SvgPicture.asset(AppIcons.icSearch)
-          //icSearch
+          Text(StringConst.searchProductHint, style: AppTextStyles.searchHint),
+          SvgPicture.asset(AppIcons.icSearch),
         ],
       ),
     );
@@ -120,8 +159,7 @@ class HomeScreen extends StatelessWidget {
         scrollDirection: .horizontal,
         itemCount: AppData.categories.length,
         separatorBuilder: (_, _) => const SizedBox(width: 10),
-        // _buildCategoryChip
-        itemBuilder: (_, index) => _buildCategoryChip(context, category: AppData.categories[index], index: index)
+        itemBuilder: (_, index) => _buildCategoryChip(context, category: AppData.categories[index], index: index),
       ),
     );
   }
@@ -130,13 +168,15 @@ class HomeScreen extends StatelessWidget {
     final selected = context.watch<HomeProvider>().selectedCategoryIndex == index;
     return GestureDetector(
       onTap: () => context.read<HomeProvider>().selectCategory(index),
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOutCubic,
         padding: .symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
           color: selected ? AppColors.primary : AppColors.chipBackground,
           borderRadius: .circular(9999),
         ),
-        child: Text(category.label, style: selected ? AppTextStyles.chipSelected : AppTextStyles.chip,),
+        child: Text(category.label, style: selected ? AppTextStyles.chipSelected : AppTextStyles.chip),
       ),
     );
   }
@@ -156,9 +196,7 @@ class HomeScreen extends StatelessWidget {
                 controller: provider.pageController,
                 itemCount: AppData.promoBanners.length,
                 onPageChanged: (index) => provider.setBannerIndex(index),
-
-                //pageOffset: page
-                itemBuilder: (_, index) => _buildPromoBanner(context, banner: AppData.promoBanners[index], pageOffset: page, index: index)
+                itemBuilder: (_, index) => _buildPromoBanner(context, banner: AppData.promoBanners[index], pageOffset: page, index: index),
               ),
             ),
             Row(
@@ -166,8 +204,7 @@ class HomeScreen extends StatelessWidget {
               mainAxisAlignment: .center,
               children: List.generate(
                 AppData.promoBanners.length,
-                //bannerIndex: page.round(),
-                (dotIndex) => _buildPaginationDot(bannerIndex: page.round(), dotIndex: dotIndex)
+                (dotIndex) => _buildPaginationDot(bannerIndex: page.round(), dotIndex: dotIndex),
               ),
             ),
           ],
@@ -185,7 +222,7 @@ class HomeScreen extends StatelessWidget {
     final parallax = (pageOffset - index).clamp(-1.0, 1.0);
     return Container(
       margin: .symmetric(horizontal: 10),
-      decoration: BoxDecoration(borderRadius: .circular(16),),
+      decoration: BoxDecoration(borderRadius: .circular(16)),
       child: ClipRRect(
         borderRadius: .circular(16),
         child: Stack(
@@ -195,9 +232,7 @@ class HomeScreen extends StatelessWidget {
               offset: Offset(parallax * -28, 0),
               child: Transform.scale(
                 scale: 1.12,
-                child:
-
-                Image.asset(
+                child: Image.asset(
                   banner.imagePath,
                   fit: .cover,
                   alignment: Alignment(-parallax * 0.6, 0),
@@ -224,19 +259,15 @@ class HomeScreen extends StatelessWidget {
                             borderRadius: .circular(70),
                             border: .all(color: AppColors.promoTagBorder, width: 0.5),
                           ),
-                          //banner.tag, promoTag
-                          child: Text(banner.tag, style: AppTextStyles.promoTag,)
+                          child: Text(banner.tag, style: AppTextStyles.promoTag),
                         ),
                         Column(
                           spacing: 8,
                           crossAxisAlignment: .start,
                           children: [
-                            //banner.titleLine1, headlineMedium
-                            Text(banner.titleLine1, style: AppTextStyles.headlineMedium,),
-                            //banner.titleLine2, headlineMedium.with color: textHeadlineAccent
-                            Text(banner.titleLine2, style: AppTextStyles.headlineMedium.copyWith(color: AppColors.textHeadlineAccent),),
-                            //banner.subtitle, bodySmall
-                            Text(banner.subtitle, style: AppTextStyles.bodySmall,)
+                            Text(banner.titleLine1, style: AppTextStyles.headlineMedium),
+                            Text(banner.titleLine2, style: AppTextStyles.headlineMedium.copyWith(color: AppColors.textHeadlineAccent)),
+                            Text(banner.subtitle, style: AppTextStyles.bodySmall),
                           ],
                         ),
                       ],
@@ -277,10 +308,8 @@ class HomeScreen extends StatelessWidget {
     return Row(
       mainAxisAlignment: .spaceBetween,
       children: [
-        //flashSale, titleMedium
-        Text(StringConst.flashSale, style: AppTextStyles.titleMedium,),
-        Text(StringConst.viewMore, style: AppTextStyles.labelSmall,)
-        //viewMore, labelSmall
+        Text(StringConst.flashSale, style: AppTextStyles.titleMedium),
+        Text(StringConst.viewMore, style: AppTextStyles.labelSmall),
       ],
     );
   }
@@ -299,83 +328,90 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildProductCard(BuildContext context, ProductModel product, int index) {
-    return Container(
-      width: 130,
-      height: 210,
-      decoration: BoxDecoration(
-        borderRadius: .circular(16),
-        gradient: LinearGradient(
-          begin: .topCenter,
-          end: .bottomCenter,
-          colors: [AppColors.white, AppColors.productCardEnd],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.shadowPromo.withValues(alpha: 0.27),
-            blurRadius: 3,
-            offset: const Offset(0, 1),
+    final begin = (0.55 + index * 0.08).clamp(0.0, 0.85);
+    final end = (begin + 0.22).clamp(begin + 0.01, 1.0);
+    return AnimatedBuilder(
+      animation: _entranceController,
+      builder: (context, child) {
+        final t = Interval(begin, end, curve: Curves.easeOutCubic).transform(_entranceController.value);
+        return Opacity(
+          opacity: t,
+          child: Transform.translate(offset: Offset(18 * (1 - t), 0), child: child),
+        );
+      },
+      child: Container(
+        width: 130,
+        height: 210,
+        decoration: BoxDecoration(
+          borderRadius: .circular(16),
+          gradient: LinearGradient(
+            begin: .topCenter,
+            end: .bottomCenter,
+            colors: [AppColors.white, AppColors.productCardEnd],
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: .start,
-        children: [
-          Stack(
-            children: [
-              ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                //product.imagePath, 130, 130, .cover
-                child: Image.asset(product.imagePath, height: 130, width: 130, fit: .cover,)
-              ),
-              Positioned(
-                top: 8,
-                right: 8,
-                child: GestureDetector(
-                  onTap: () => context.read<HomeProvider>().toggleFavorite(index),
-                  child: Container(
-                    padding: .all(8),
-                    decoration: BoxDecoration(
-                      color: AppColors.white.withValues(alpha: 0.9),
-                      shape: .circle,
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.shadowPromo.withValues(alpha: 0.27),
+              blurRadius: 3,
+              offset: const Offset(0, 1),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: .start,
+          children: [
+            Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                  child: Image.asset(product.imagePath, height: 130, width: 130, fit: .cover),
+                ),
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: GestureDetector(
+                    onTap: () => context.read<HomeProvider>().toggleFavorite(index),
+                    child: Container(
+                      padding: .all(8),
+                      decoration: BoxDecoration(
+                        color: AppColors.white.withValues(alpha: 0.9),
+                        shape: .circle,
+                      ),
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 200),
+                        transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
+                        child: product.isFavorite
+                            ? Icon(Icons.favorite, key: const ValueKey('fav'), color: AppColors.primary)
+                            : SvgPicture.asset(AppIcons.icFavorite, key: const ValueKey('unfav'), height: 20),
+                      ),
                     ),
-                    child:
-                    product.isFavorite
-                        ? Icon(Icons.favorite, color: AppColors.primary,)
-                        : SvgPicture.asset(AppIcons.icFavorite, height: 20,),
                   ),
                 ),
-              ),
-            ],
-          ),
-          Expanded(
-            child: Padding(
-              padding: .all(8),
-              child: Column(
-                spacing: 4,
-                crossAxisAlignment: .start,
-                children: [
-                  Expanded(
-                    //product.name
-                    child: Text(
-                      product.name, maxLines: 2,
-                      overflow: .ellipsis,
-                      style: AppTextStyles.productTitle,
+              ],
+            ),
+            Expanded(
+              child: Padding(
+                padding: .all(8),
+                child: Column(
+                  spacing: 4,
+                  crossAxisAlignment: .start,
+                  children: [
+                    Expanded(
+                      child: Text(product.name, maxLines: 2, overflow: .ellipsis, style: AppTextStyles.productTitle),
                     ),
-                  ),
-                  Row(
-                    mainAxisAlignment: .spaceBetween,
-                    children: [
-                      //
-                      Text('\$${product.price.toStringAsFixed(2)}', style: AppTextStyles.price,),
-
-                      RatingLabel(rating: product.rating, reviewCount: product.reviewCount,),
-                    ],
-                  ),
-                ],
+                    Row(
+                      mainAxisAlignment: .spaceBetween,
+                      children: [
+                        Text('\$${product.price.toStringAsFixed(2)}', style: AppTextStyles.price),
+                        RatingLabel(rating: product.rating, reviewCount: product.reviewCount),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
