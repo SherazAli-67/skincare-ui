@@ -30,12 +30,13 @@ class WelcomeScreen extends StatelessWidget {
             bottom: 10,
             child: ImageFiltered(
               imageFilter: ImageFilter.blur(
-                sigmaX: 14,
-                sigmaY: 14,
+                // sigmaX: 14,
+                // sigmaY: 14,
               ),
-              child: Container(
+              child: const SizedBox()
+             /* Container(
               height: 176,
-              color: AppColors.featureBlur,),
+              color: AppColors.featureBlur,),*/
             )),
           SafeArea(
             child: Padding(
@@ -44,13 +45,13 @@ class WelcomeScreen extends StatelessWidget {
                 crossAxisAlignment: .start,
                 spacing: 18,
                 children: [
-                  const GlowraLogo(),
+                  //logoWithText
                   Column(
                     crossAxisAlignment: .start,
                     spacing: 8,
                     children: [
                       _buildHeadline(),
-                      Text(StringConst.welcomeSubtitle, style: AppTextStyles.bodyMedium,),
+                      //welcomeSubtitle, bodyMedium
                     ],
                   ),
                   const Spacer(),
@@ -68,14 +69,15 @@ class WelcomeScreen extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          begin: .topCenter,
-          end: .bottomCenter,
+          // begin: .topCenter,
+          // end: .bottomCenter,
           colors: [
-            AppColors.backgroundStart,
-            AppColors.backgroundMid,
-            AppColors.backgroundEnd,
+
+            // AppColors.backgroundStart,
+            // AppColors.backgroundMid,
+            // AppColors.backgroundEnd,
           ],
-          stops: const [0, 0.5, 1],
+          // stops: const [0, 0.5, 1],
         ),
       ),
     );
@@ -85,7 +87,8 @@ class WelcomeScreen extends StatelessWidget {
     return Positioned(
       top: 100,
       right: 0,
-      child: SvgPicture.asset(AppIcons.icLeafDecor, width: 140, height: 180,),
+      //icLeafDecor, width: 140, height: 180
+      child: const SizedBox()
     );
   }
 
@@ -105,17 +108,16 @@ class WelcomeScreen extends StatelessWidget {
         Column(
           crossAxisAlignment: .start,
           children: [
+            //welcomeHeadlineLine1, headlineLarge
             Text(StringConst.welcomeHeadlineLine1, style: AppTextStyles.headlineLarge,),
-            Text(
-              StringConst.welcomeHeadlineLine2,
-              style: AppTextStyles.headlineLarge.copyWith(color: AppColors.textHeadlineAccent),
-            ),
+            // Text(StringConst.welcomeHeadlineLine2, style: AppTextStyles.headlineLarge.copyWith(color: AppColors.textHeadlineAccent),),
           ],
         ),
         Positioned(
           right: 10,
           top: 10,
-          child: SvgPicture.asset(AppIcons.icSparkle, width: 22, height: 26,),
+          //icSparkle, width: 22, height: 26
+          child: const SizedBox()
         ),
       ],
     );
@@ -126,7 +128,7 @@ class WelcomeScreen extends StatelessWidget {
       width: double.infinity,
       padding: .fromLTRB(16, 17, 16, 16),
       decoration: BoxDecoration(
-        color: AppColors.featureCard,
+       /* color: AppColors.featureCard,
         borderRadius: .circular(20),
         border: .all(color: AppColors.white),
         boxShadow: [
@@ -135,22 +137,19 @@ class WelcomeScreen extends StatelessWidget {
             blurRadius: 4,
             offset: const Offset(0, 4),
           ),
-        ],
+        ],*/
       ),
       child: Column(
         spacing: 16,
         children: [
-          Row(
+          /*Row(
             mainAxisAlignment: .spaceAround,
             children: [
               for (final feature in AppData.welcomeFeatures) _buildFeatureItem(feature),
             ],
-          ),
-          PrimaryButton(
-            label: StringConst.discoverProducts,
-            width: double.infinity,
-            onTap: () => context.go(NamedRoutes.home.routeName),
-          ),
+          ),*/
+          //PrimaryBtn -> discoverProducts, width: .infinity, onTap: home
+
         ],
       ),
     );
