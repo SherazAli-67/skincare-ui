@@ -12,8 +12,46 @@ import 'package:skincare/core/models/product_model.dart';
 import 'package:skincare/presentation/widgets/circle_icon_button.dart';
 import 'package:skincare/presentation/widgets/rating_label.dart';
 
-class SkinAnalysisScreen extends StatelessWidget {
+class SkinAnalysisScreen extends StatefulWidget {
   const SkinAnalysisScreen({super.key});
+
+  @override
+  State<SkinAnalysisScreen> createState() => _SkinAnalysisScreenState();
+}
+
+class _SkinAnalysisScreenState extends State<SkinAnalysisScreen> with TickerProviderStateMixin {
+  late final AnimationController _entranceController;
+  late final AnimationController _scanController;
+  late final Animation<double> _faceAnimation;
+  late final Animation<double> _topBarAnimation;
+  late final Animation<double> _healthCardAnimation;
+  late final Animation<double> _progressAnimation;
+  late final Animation<double> _panelAnimation;
+  late final Animation<double> _markerPulseA;
+  late final Animation<double> _markerPulseB;
+
+  @override
+  void initState() {
+    super.initState();
+    _entranceController = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200));
+    _scanController = AnimationController(vsync: this, duration: const Duration(milliseconds: 1400));
+    _faceAnimation = CurvedAnimation(parent: _entranceController, curve: const Interval(0.00, 0.35, curve: Curves.easeOutCubic));
+    _topBarAnimation = CurvedAnimation(parent: _entranceController, curve: const Interval(0.00, 0.25, curve: Curves.easeOutCubic));
+    _healthCardAnimation = CurvedAnimation(parent: _entranceController, curve: const Interval(0.25, 0.60, curve: Curves.easeOutCubic));
+    _progressAnimation = CurvedAnimation(parent: _entranceController, curve: const Interval(0.40, 0.85, curve: Curves.easeOutCubic));
+    _panelAnimation = CurvedAnimation(parent: _entranceController, curve: const Interval(0.45, 0.90, curve: Curves.easeOutCubic));
+    _markerPulseA = Tween(begin: 0.82, end: 1.0).animate(CurvedAnimation(parent: _scanController, curve: Curves.easeInOut));
+    _markerPulseB = Tween(begin: 1.0, end: 0.82).animate(CurvedAnimation(parent: _scanController, curve: Curves.easeInOut));
+    _entranceController.forward();
+    _scanController.repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _entranceController.dispose();
+    _scanController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,34 +64,42 @@ class SkinAnalysisScreen extends StatelessWidget {
             top: 0,
             left: 0,
             right: 0,
-            child: Column(
-              children: [
-                _buildFaceSection(context, size),
-
-              ],
-            ),
+            child: Column(children: [_buildFaceSection(context, size)]),
           ),
           Positioned(
             left: 0,
             right: 0,
             bottom: 175,
-            child:  ImageFiltered(
-              imageFilter: ImageFilter.blur(
-                sigmaX: 14,
-                sigmaY: 14,
-              ),
-              child: Container(
-                height: 176,
-                color: AppColors.background,),
+            child: ImageFiltered(
+              imageFilter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+              child: Container(height: 176, color: AppColors.background),
             ),
           ),
           Positioned(
             left: 0,
             right: 0,
             bottom: 20,
-            child: _buildSuggestPanel()
+            child: _buildFadeSlideIn(
+              animation: _panelAnimation,
+              beginOffset: const Offset(0, 0.12),
+              child: _buildSuggestPanel(),
+            ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildFadeSlideIn({
+    required Animation<double> animation,
+    required Widget child,
+    Offset beginOffset = const Offset(0, 0.06),
+  }) {
+    return FadeTransition(
+      opacity: animation,
+      child: SlideTransition(
+        position: Tween(begin: beginOffset, end: Offset.zero).animate(animation),
+        child: child,
       ),
     );
   }
@@ -64,29 +110,38 @@ class SkinAnalysisScreen extends StatelessWidget {
       child: Stack(
         fit: .expand,
         children: [
-          Image.asset(AppIcons.imgSkinAnalysis, fit: .cover, width: double.infinity,),
+          FadeTransition(
+            opacity: _faceAnimation,
+            child: Image.asset(AppIcons.imgSkinAnalysis, fit: .cover, width: double.infinity),
+          ),
           _buildScanMarkers(),
           Positioned(
             left: 20,
             right: 20,
             top: 12,
             child: SafeArea(
-              child: Row(
-              mainAxisAlignment: .spaceBetween,
-              children: [
-                CircleIconButton(
-                  iconPath: AppIcons.icArrowBack,
-                  onTap: () => context.pop(),
+              child: FadeTransition(
+                opacity: _topBarAnimation,
+                child: Row(
+                  mainAxisAlignment: .spaceBetween,
+                  children: [
+                    CircleIconButton(iconPath: AppIcons.icArrowBack, onTap: () => context.pop()),
+                    CircleIconButton(iconPath: AppIcons.icShare),
+                  ],
                 ),
-                CircleIconButton(iconPath: AppIcons.icShare,),
-              ],
-                      ),
-            ),),
+              ),
+            ),
+          ),
           Positioned(
             bottom: 10,
             left: 12,
             right: 12,
-            child:  _buildSkinHealthCard(),),
+            child: _buildFadeSlideIn(
+              animation: _healthCardAnimation,
+              beginOffset: const Offset(0, 0.08),
+              child: _buildSkinHealthCard(),
+            ),
+          ),
         ],
       ),
     );
@@ -102,22 +157,22 @@ class SkinAnalysisScreen extends StatelessWidget {
             Positioned(
               left: w * 0.195,
               top: h * 0.587,
-              child: SvgPicture.asset(AppIcons.icScanMarkerLg, width: 28, height: 28,),
+              child: _buildPulsingMarker(animation: _markerPulseA, child: SvgPicture.asset(AppIcons.icScanMarkerLg, width: 28, height: 28)),
             ),
             Positioned(
               left: w * 0.215,
               top: h * 0.60,
-              child: SvgPicture.asset(AppIcons.icScanMarkerSm, width: 12, height: 12,),
+              child: _buildPulsingMarker(animation: _markerPulseB, child: SvgPicture.asset(AppIcons.icScanMarkerSm, width: 12, height: 12)),
             ),
             Positioned(
               left: w * 0.557,
               top: h * 0.664,
-              child: SvgPicture.asset(AppIcons.icScanMarkerLg, width: 32, height: 32,),
+              child: _buildPulsingMarker(animation: _markerPulseB, child: SvgPicture.asset(AppIcons.icScanMarkerLg, width: 32, height: 32)),
             ),
             Positioned(
               left: w * 0.58,
               top: h * 0.68,
-              child: SvgPicture.asset(AppIcons.icScanMarkerSm, width: 14, height: 14,),
+              child: _buildPulsingMarker(animation: _markerPulseA, child: SvgPicture.asset(AppIcons.icScanMarkerSm, width: 14, height: 14)),
             ),
           ],
         );
@@ -125,8 +180,15 @@ class SkinAnalysisScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildPulsingMarker({required Animation<double> animation, required Widget child}) {
+    return FadeTransition(
+      opacity: animation,
+      child: ScaleTransition(scale: animation, child: child),
+    );
+  }
+
   Widget _buildSkinHealthCard() {
-    final percent = AppData.skinHealthPercent / 100;
+    final targetPercent = AppData.skinHealthPercent / 100;
     return Container(
       height: 72,
       padding: .fromLTRB(20, 14, 16, 16),
@@ -155,24 +217,22 @@ class SkinAnalysisScreen extends StatelessWidget {
                   children: [
                     Text(
                       StringConst.skinHealth,
-                      style: AppTextStyles.titleLarge.copyWith(
-                        fontWeight: .w600,
-                        fontSize: 18,
-                        color: AppColors.white,
-                      ),
+                      style: AppTextStyles.titleLarge.copyWith(fontWeight: .w600, fontSize: 18, color: AppColors.white),
                     ),
-                    Text(
-                      '${AppData.skinHealthPercent}%',
-                      style: AppTextStyles.titleLarge.copyWith(
-                        fontWeight: .w600,
-                        fontSize: 18,
-                        color: AppColors.skinHealthPercent,
-                      ),
+                    AnimatedBuilder(
+                      animation: _progressAnimation,
+                      builder: (_, _) {
+                        final value = (_progressAnimation.value * AppData.skinHealthPercent).round();
+                        return Text(
+                          '$value%',
+                          style: AppTextStyles.titleLarge.copyWith(fontWeight: .w600, fontSize: 18, color: AppColors.skinHealthPercent),
+                        );
+                      },
                     ),
                   ],
                 ),
               ),
-              SvgPicture.asset(AppIcons.icChevronDown, width: 24, height: 24, colorFilter: .mode(AppColors.white, .srcIn),),
+              SvgPicture.asset(AppIcons.icChevronDown, width: 24, height: 24, colorFilter: .mode(AppColors.white, .srcIn)),
             ],
           ),
           Align(
@@ -185,9 +245,12 @@ class SkinAnalysisScreen extends StatelessWidget {
                 child: Stack(
                   children: [
                     Container(color: AppColors.progressTrack),
-                    FractionallySizedBox(
-                      widthFactor: percent,
-                      child: Container(color: AppColors.progressFill),
+                    AnimatedBuilder(
+                      animation: _progressAnimation,
+                      builder: (_, _) => FractionallySizedBox(
+                        widthFactor: targetPercent * _progressAnimation.value,
+                        child: Container(color: AppColors.progressFill),
+                      ),
                     ),
                   ],
                 ),
@@ -223,13 +286,10 @@ class SkinAnalysisScreen extends StatelessWidget {
             mainAxisSize: .min,
             crossAxisAlignment: .start,
             children: [
-              Text(
-                '${StringConst.suggestProduct} (${products.length})',
-                style: AppTextStyles.titleMedium,
-              ),
-              Divider(height: 1, color: AppColors.suggestBorder,),
+              Text('${StringConst.suggestProduct} (${products.length})', style: AppTextStyles.titleMedium),
+              Divider(height: 1, color: AppColors.suggestBorder),
               for (var i = 0; i < products.length; i++) ...[
-                if (i > 0) Divider(height: 1, color: AppColors.suggestBorder,),
+                if (i > 0) Divider(height: 1, color: AppColors.suggestBorder),
                 _buildSuggestedProductTile(products[i]),
               ],
             ],
@@ -245,23 +305,18 @@ class SkinAnalysisScreen extends StatelessWidget {
       children: [
         ClipRRect(
           borderRadius: .circular(12),
-          child: Image.asset(product.imagePath, width: 82, height: 82, fit: .cover,),
+          child: Image.asset(product.imagePath, width: 82, height: 82, fit: .cover),
         ),
         Expanded(
           child: Column(
             spacing: 7,
             crossAxisAlignment: .start,
             children: [
-              Text(
-                product.name,
-                maxLines: 2,
-                overflow: .ellipsis,
-                style: AppTextStyles.bodyLarge,
-              ),
+              Text(product.name, maxLines: 2, overflow: .ellipsis, style: AppTextStyles.bodyLarge),
               Row(
                 spacing: 4,
                 children: [
-                  Text('\$${product.price.toStringAsFixed(2)}', style: AppTextStyles.labelMedium.copyWith(fontSize: 16),),
+                  Text('\$${product.price.toStringAsFixed(2)}', style: AppTextStyles.labelMedium.copyWith(fontSize: 16)),
                   RatingLabel(
                     rating: product.rating,
                     reviewCount: product.reviewCount,
@@ -273,7 +328,7 @@ class SkinAnalysisScreen extends StatelessWidget {
             ],
           ),
         ),
-        SvgPicture.asset(AppIcons.icAdd, width: 32, height: 32,),
+        SvgPicture.asset(AppIcons.icAdd, width: 32, height: 32),
       ],
     );
   }
