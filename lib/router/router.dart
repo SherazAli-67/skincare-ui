@@ -10,7 +10,7 @@ import 'package:skincare/presentation/screens/skin_analysis_screen.dart';
 import 'package:skincare/presentation/screens/welcome_screen.dart';
 
 GoRouter router = GoRouter(
-  initialLocation: NamedRoutes.home.routeName,
+  initialLocation: NamedRoutes.welcome.routeName,
   routes: [
     GoRoute(path: NamedRoutes.welcome.routeName, builder: (_, state) => const WelcomeScreen()),
     StatefulShellRoute.indexedStack(
